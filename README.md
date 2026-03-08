@@ -30,14 +30,26 @@ A browser extension that adds a **"✨ Summarize with Gemini"** button to YouTub
 4. Click **Load unpacked**.
 5. Select the `Chromium/` folder from this repository.
 
-### Firefox
+### Firefox (Signed Release)
+
+The easiest way to install on Firefox is to use the pre-built, signed release file:
+
+1. Go to the [Releases page](https://github.com/Dawnflare/youtube-summarizer-extension/releases/latest) on GitHub.
+2. Download the `db04bab231844fcf8ca3-1.0.xpi` file (or the `.xpi` file for the latest version).
+3. Open Firefox and type `about:addons` in the address bar.
+4. Click the gear icon ⚙️ in the top right and select **Install Add-on From File...**.
+5. Select the downloaded `.xpi` file and click **Add** when prompted.
+
+### Firefox (Development/Temporary)
+
+If you are modifying the code and want to test changes:
 
 1. Download or clone this repository.
 2. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`.
 3. Click **Load Temporary Add-on...**.
 4. Navigate to the `Firefox/` folder and select `manifest.json`.
 
-> **Note:** Temporary add-ons are removed when Firefox closes. For permanent installation, the extension must be signed and distributed via [AMO](https://addons.mozilla.org/).
+> **Note:** Temporary add-ons are removed when Firefox closes. For permanent installation, use the signed `.xpi` file as described above.
 
 ## Usage
 
