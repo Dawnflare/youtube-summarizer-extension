@@ -138,6 +138,24 @@ npm run codegen
 
 **Firefox:** Load `Firefox/manifest.json` as a temporary add-on (see Installation above). After making changes, click "Reload" on `about:debugging`.
 
+### Packaging for Firefox (AMO Submission)
+
+To generate a `.zip` file suitable for submission to [Mozilla Add-ons (AMO)](https://addons.mozilla.org/):
+
+```bash
+npm run build:firefox
+```
+
+This creates `firefox-extension.zip` in the project root with `manifest.json` at the archive root (an AMO requirement).
+
+**Submitting to AMO:**
+
+1. Go to [addons.mozilla.org/developers](https://addons.mozilla.org/developers/) and sign in with your Mozilla account.
+2. Click **Submit a New Add-on** (or **Upload New Version** for updates).
+3. Upload the `firefox-extension.zip` file.
+4. Complete the listing details (description, screenshots, categories).
+5. Submit for review — Mozilla will review the extension before it goes live.
+
 ## Security & Privacy
 
 - [Best Practices](BEST_PRACTICES.md) — Security measures implemented in this extension.
