@@ -8,15 +8,7 @@
     "test:quick": "playwright test tests/integration/youtube_button_test.spec.js",
     "test:headed": "playwright test --headed",
     "codegen": "playwright codegen",
-    "build": "npm run build:chrome && npm run build:firefox",
-    "build:chrome": "rimraf dist/chrome && mkdirp dist/chrome && npm run copy-files:chrome",
-    "build:firefox": "rimraf dist/firefox && mkdirp dist/firefox && npm run copy-files:firefox",
-    "copy-files:chrome": "copyfiles manifest.json content.js gemini_filler.js logging.js options.html options.js style.css images/* dist/chrome/",
-    "copy-files:firefox": "copyfiles manifest.json content.js gemini_filler.js logging.js options.html options.js style.css images/* dist/firefox/",
-    "package": "npm run build && npm run zip",
-    "zip": "npm run zip:chrome && npm run zip:firefox",
-    "zip:chrome": "cd dist/chrome && bestzip ../chrome.zip *",
-    "zip:firefox": "cd dist/firefox && bestzip ../firefox.zip *"
+    "build:firefox": "node package-firefox.js"
   },
   "keywords": [
     "youtube",
@@ -38,10 +30,11 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",
-    "playwright": "^1.40.0",
+    "archiver": "^7.0.1",
     "bestzip": "^2.2.1",
     "copyfiles": "^2.4.1",
     "mkdirp": "^3.0.1",
+    "playwright": "^1.40.0",
     "rimraf": "^5.0.5"
   },
   "engines": {
