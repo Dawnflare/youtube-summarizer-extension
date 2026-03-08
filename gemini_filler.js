@@ -11,6 +11,8 @@
   let attempts = 0;
   let observer = null;
   let hasPromptToFill = false;
+  let fillCompleted = false;
+  let activeIntervalId = null;
 
   function log(level, message, details) {
     const logArgs = details ? [message, details] : [message];
@@ -21,7 +23,7 @@
   }
 
   function findGeminiInputTextField() {
-    const mainInputSelector = '[aria-label="Enter a prompt here"]';
+    const mainInputSelector = '[aria-label="Enter a prompt for Gemini"]';
     const activatableInputAreaSelector = '.text-input-field';
     
     try {
@@ -72,31 +74,60 @@
     try {
       inputField.focus();
       
+      // Clear existing content via selection + delete so Quill tracks the change
+      const selection = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(inputField);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      
+      // Primary approach: execCommand('insertText') — triggers Quill's input handling
+      const execResult = document.execCommand('insertText', false, text);
+      
+      if (execResult && inputField.textContent.trim().length > 0) {
+        log("log", "Text injected via execCommand('insertText')");
+        return true;
+      }
+      
+      log("warn", "execCommand('insertText') did not work, trying clipboard paste");
+      
+      // Fallback: Clipboard API paste simulation
+      try {
+        const clipboardData = new DataTransfer();
+        clipboardData.setData('text/plain', text);
+        const pasteEvent = new ClipboardEvent('paste', {
+          bubbles: true,
+          cancelable: true,
+          clipboardData: clipboardData
+        });
+        inputField.dispatchEvent(pasteEvent);
+        
+        // Check if paste was handled
+        if (inputField.textContent.trim().length > 0) {
+          log("log", "Text injected via clipboard paste event");
+          return true;
+        }
+      } catch (clipErr) {
+        log("warn", "Clipboard paste fallback failed:", clipErr);
+      }
+      
+      // Last resort: direct DOM manipulation + InputEvent
+      log("warn", "Using direct DOM fallback (send button may not appear)");
       while (inputField.firstChild) {
         inputField.removeChild(inputField.firstChild);
       }
+      const p = document.createElement('p');
+      p.textContent = text;
+      inputField.appendChild(p);
       
-      const lines = text.split('\n');
-      lines.forEach((line, index) => {
-        if (!line.trim()) return;
-        
-        const p = document.createElement('p');
-        p.textContent = line;
-        inputField.appendChild(p);
-        
-        if (index < lines.length - 1) {
-          inputField.appendChild(document.createElement('br'));
-        }
-      });
+      inputField.dispatchEvent(new InputEvent('input', {
+        bubbles: true,
+        cancelable: true,
+        inputType: 'insertText',
+        data: text
+      }));
       
-      try {
-        inputField.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
-        inputField.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
-      } catch (e) {
-        log("warn", "Error dispatching events:", e);
-      }
-      
-      log("debug", "Text injected successfully");
+      log("debug", "Text injected via direct DOM manipulation (last resort)");
       return true;
     } catch (e) {
       log("error", "Failed to inject text:", e);
@@ -112,26 +143,14 @@
       return false;
     }
     
-    if (window.__geminiSendButtonClicked) {
-      log("debug", "Send button was already clicked recently");
-      return true;
-    }
-    
     log("log", "Clicking send button");
-    window.__geminiSendButtonClicked = true;
     
-    setTimeout(() => {
-      try {
-        sendButton.click();
-        log("debug", "Send button clicked successfully");
-      } catch (e) {
-        log("error", "Error clicking send button:", e);
-      }
-    }, 100);
-    
-    setTimeout(() => {
-      window.__geminiSendButtonClicked = false;
-    }, 2000);
+    try {
+      sendButton.click();
+      log("debug", "Send button clicked successfully");
+    } catch (e) {
+      log("error", "Error clicking send button:", e);
+    }
     
     return true;
   }
@@ -178,7 +197,23 @@
     }
   }
 
+  function stopAllPolling() {
+    if (activeIntervalId) {
+      clearInterval(activeIntervalId);
+      activeIntervalId = null;
+    }
+    observer?.disconnect();
+    observer = null;
+    log("debug", "All polling and observers stopped");
+  }
+
   async function attemptToFillPrompt() {
+    // Prevent re-entry after a successful fill
+    if (fillCompleted) {
+      log("debug", "Fill already completed, skipping");
+      return true;
+    }
+    
     attempts++;
     log("debug", `Attempt ${attempts}/${MAX_ATTEMPTS}`);
     
@@ -224,17 +259,26 @@
       return false;
     }
     
+    // Mark as completed and stop all polling IMMEDIATELY to prevent re-entry
+    fillCompleted = true;
+    hasPromptToFill = false;
+    stopAllPolling();
+    await clearPromptFromStorage();
+    
+    log("debug", "Waiting for Quill to process input before submitting");
+    
+    // Give Quill/Angular time to process the input and render the send button
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
     log("debug", "Submitting form");
     
     if (!findAndClickSendButton()) {
-      log("debug", "Send button not found, trying Enter key");
-      simulateEnterKeyPress(inputField);
+      // Retry after another short delay — send button may still be rendering
+      await new Promise(resolve => setTimeout(resolve, 500));
+      if (!findAndClickSendButton()) {
+        log("warn", "Send button not found after retries. Prompt is filled — you can submit manually.");
+      }
     }
-    
-    setTimeout(async () => {
-      await clearPromptFromStorage();
-      hasPromptToFill = false;
-    }, 1000);
     
     return true;
   }
@@ -297,9 +341,15 @@
       log("debug", "Input field not found yet, will retry");
     }
     
-    const intervalId = setInterval(async () => {
+    activeIntervalId = setInterval(async () => {
+      // Check if fill already completed (prevents re-entry race conditions)
+      if (fillCompleted) {
+        stopAllPolling();
+        return;
+      }
+      
       if (attempts >= MAX_ATTEMPTS) {
-        clearInterval(intervalId);
+        stopAllPolling();
         log("warn", `Max attempts (${MAX_ATTEMPTS}) reached`);
         return;
       }
@@ -309,7 +359,7 @@
       
       if (!data?.[STORAGE_KEY_PROMPT]) {
         log("debug", "No prompt found in storage, stopping");
-        cleanup(intervalId);
+        stopAllPolling();
         return;
       }
       
@@ -330,13 +380,7 @@
       }
     }, ATTEMPT_DELAY_MS);
     
-    const cleanup = (id) => {
-      clearInterval(id);
-      observer?.disconnect();
-      observer = null;
-    };
-    
-    window.addEventListener('unload', () => cleanup(intervalId));
+    window.addEventListener('unload', () => stopAllPolling());
   }
 
   log("log", "Gemini filler script initialized.");

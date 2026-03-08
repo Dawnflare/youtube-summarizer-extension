@@ -1,6 +1,6 @@
 {
-  "name": "youtube-summarizer-extension",
-  "version": "0.0.3",
+  "name": "youtube-summarizer-dawnflare",
+  "version": "1.0.0",
   "description": "Browser extension to summarize YouTube videos using Google's Gemini AI. Adds a button to YouTube pages that opens Gemini with the video URL for instant summaries.",
   "main": "",
   "scripts": {

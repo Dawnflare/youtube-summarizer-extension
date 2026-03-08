@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "YouTube Summarizer with Gemini",
-  "version": "0.0.3",
+  "name": "YouTube Summarizer (Dawnflare)",
+  "version": "1.0",
   "description": "Summarize YouTube videos with Gemini AI. Adds a button to YouTube to open Gemini with the video URL for instant summaries.",
   "icons": {
     "16": "images/icon16.png",

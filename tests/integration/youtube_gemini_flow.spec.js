@@ -6,7 +6,7 @@ const EXTENSION_ID = 'youtube-summarizer-extension'; // This will be replaced by
 
 // Selectors (should ideally match or be derived from content.js and gemini_filler.js)
 const BUTTON_SELECTOR_YOUTUBE = '#gemini-summarize-youtube-page-button';
-const GEMINI_INPUT_SELECTOR = '[aria-label="Enter a prompt here"]';
+const GEMINI_INPUT_SELECTOR = '[aria-label="Enter a prompt for Gemini"]';
 
 const YOUTUBE_VIDEO_URL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'; // Rick Astley - Never Gonna Give You Up
 const GEMINI_URL_BASE = 'https://gemini.google.com/app';
