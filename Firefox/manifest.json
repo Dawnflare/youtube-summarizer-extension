@@ -1,5 +1,5 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "YouTube Summarizer (Dawnflare)",
   "version": "1.0",
   "description": "Summarize YouTube videos with Gemini AI. Adds a button to YouTube to open Gemini with the video URL for instant summaries.",
@@ -9,9 +9,7 @@
     "128": "images/icon128.png"
   },
   "permissions": [
-    "storage"
-  ],
-  "host_permissions": [
+    "storage",
     "https://*.youtube.com/*",
     "https://gemini.google.com/app*"
   ],
@@ -28,7 +26,7 @@
       "run_at": "document_idle"
     }
   ],
-  "action": {
+  "browser_action": {
     "default_title": "Summarize with Gemini",
     "default_icon": {
       "16": "images/icon16.png",
@@ -39,12 +37,9 @@
     "page": "options.html",
     "open_in_tab": true
   },
-  "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self';"
-  },
+  "content_security_policy": "script-src 'self'; object-src 'self';",
   "author": "Brian Hare",
-  "homepage_url": "https://github.com/bhare1985/youtube-summarizer-extension",
-  "minimum_chrome_version": "88",
+  "homepage_url": "https://github.com/Dawnflare/youtube-summarizer-extension",
   "browser_specific_settings": {
     "gecko": {
       "id": "youtube-summarizer-extension@haresolutions.com",
