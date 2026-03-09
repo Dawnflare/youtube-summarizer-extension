@@ -1,6 +1,6 @@
-# Privacy Policy for YouTube Summarizer with Gemini Extension
+# Privacy Policy for YouTube Summarizer (Dawnflare) Extension
 
-**Last Updated: 2025-05-12**
+**Last Updated: 2026-03-09**
 
 This Privacy Policy describes how the "YouTube Summarizer with Gemini" browser extension (the "Extension") handles your information.
 
@@ -50,5 +50,5 @@ We may update this Privacy Policy from time to time. We will notify you of any c
 
 ## 9. Contact Us
 
-If you have any questions about this Privacy Policy, please open an issue on our GitHub repository: [https://github.com/bhare1985/youtube-summarizer-extension/issues](https://github.com/bhare1985/youtube-summarizer-extension/issues)
+If you have any questions about this Privacy Policy, please open an issue on our GitHub repository: [https://github.com/Dawnflare/youtube-summarizer-extension/issues](https://github.com/Dawnflare/youtube-summarizer-extension/issues)
 
