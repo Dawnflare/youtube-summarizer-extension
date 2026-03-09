@@ -8,6 +8,7 @@
     "test:quick": "playwright test tests/integration/youtube_button_test.spec.js",
     "test:headed": "playwright test --headed",
     "codegen": "playwright codegen",
+    "build:chromium": "node package-chromium.js",
     "build:firefox": "node package-firefox.js"
   },
   "keywords": [
